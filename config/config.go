@@ -10,7 +10,7 @@ const (
 	// 数据库类
 
 	// mysql连接配置
-	MYSQL_DSN = "root:zhicongdai@tcp(127.0.0.1:3306)/DBManager?charset=utf8mb4&parseTime=True&loc=Local"
+	MYSQL_DSN = "root:zhicongdai@tcp(172.20.199.4:3306)/DBManager?charset=utf8mb4&parseTime=True&loc=Local"
 	// redis
 	REDIS_HOST = "127.0.0.1"
 	REDIS_PORT = 6379
