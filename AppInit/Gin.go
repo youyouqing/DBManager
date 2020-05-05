@@ -11,12 +11,12 @@ type ginEngine struct {
 }
 
 func GetGin(isProduct bool) *ginEngine {
-	return &ginEngine{engine,Utils.ShareConfigInstance(isProduct).GetConfigFromKey("server_port")}
+	return &ginEngine{engine, Utils.ShareConfigInstance(isProduct).GetConfigFromKey("server_port")}
 }
 
-func (this *ginEngine)Start()  {
+func (this *ginEngine) Start() {
 
-	GetDB()
+	//GetDB()
 
 	this.Run(this.ServerPort)
 }
@@ -26,4 +26,3 @@ var engine *gin.Engine
 func init() {
 	engine = gin.Default()
 }
-

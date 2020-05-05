@@ -28,6 +28,30 @@ func NewResultError500(msg string) *Result {
 	}
 }
 
+func NewResultError404(msg string) *Result {
+	return &Result{
+		Data: false,
+		Msg:  msg,
+		Code: http.StatusNotFound,
+	}
+}
+
+func NewResultError405(msg string) *Result {
+	return &Result{
+		Data: false,
+		Msg:  msg,
+		Code: http.StatusMethodNotAllowed,
+	}
+}
+
+func NewResultError403(msg string) *Result {
+	return &Result{
+		Data: false,
+		Msg:  msg,
+		Code: http.StatusForbidden,
+	}
+}
+
 func (this *Result) SetData(data interface{}) *Result {
 	this.Data = data
 	return this

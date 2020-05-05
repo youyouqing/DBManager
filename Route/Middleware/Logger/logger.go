@@ -2,7 +2,8 @@ package Logger
 
 import (
 	"bytes"
-	"dzc.com/config"
+	"dzc.com/Config"
+	"dzc.com/Utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/json-iterator/go"
@@ -17,8 +18,8 @@ type BodyWriter struct {
 	body *bytes.Buffer
 }
 
-func NewBodyWriter(resWriter gin.ResponseWriter) *BodyWriter  {
-	return &BodyWriter{body:bytes.NewBufferString(""),ResponseWriter:resWriter}
+func NewBodyWriter(resWriter gin.ResponseWriter) *BodyWriter {
+	return &BodyWriter{body: bytes.NewBufferString(""), ResponseWriter: resWriter}
 }
 
 func (this *BodyWriter) Write(buf []byte) (int, error) {
@@ -33,7 +34,6 @@ func (this *BodyWriter) WriteString(s string) (int, error) {
 
 var accessLogChannel = make(chan string, 100)
 
-
 func SetLogger() gin.HandlerFunc {
 
 	go handleWriteLog() // 异步写日志
@@ -47,17 +47,17 @@ func SetLogger() gin.HandlerFunc {
 
 		responseBody := bodyWriter.body.String() // 响应参数
 
-		endTime := time.Now().UnixNano()  // 结束时间
+		endTime := time.Now().UnixNano() // 结束时间
 
 		// 日志格式
 		accessLogMap := make(map[string]interface{})
 
-		accessLogMap["request_time"]      = startTime
-		accessLogMap["request_method"]    = context.Request.Method
-		accessLogMap["request_uri"]       = context.Request.RequestURI
-		accessLogMap["request_proto"]     = context.Request.Proto
-		accessLogMap["request_ua"]        = context.Request.UserAgent()
-		accessLogMap["request_referer"]   = context.Request.Referer()
+		accessLogMap["request_time"] = startTime
+		accessLogMap["request_method"] = context.Request.Method
+		accessLogMap["request_uri"] = context.Request.RequestURI
+		accessLogMap["request_proto"] = context.Request.Proto
+		accessLogMap["request_ua"] = context.Request.UserAgent()
+		accessLogMap["request_referer"] = context.Request.Referer()
 		accessLogMap["request_post_data"] = context.Request.PostForm.Encode()
 		accessLogMap["request_client_ip"] = context.ClientIP()
 
@@ -66,18 +66,19 @@ func SetLogger() gin.HandlerFunc {
 
 		accessLogMap["cost_time"] = fmt.Sprintf("%vms", endTime-startTime)
 		var json = jsoniter.ConfigCompatibleWithStandardLibrary
-		jsonByte,err := json.Marshal(&accessLogMap)
+		jsonByte, err := json.Marshal(&accessLogMap)
 		if err != nil {
 			log.Panic(err)
-		}else {
+		} else {
 			jsonByteString := string(jsonByte)
 			accessLogChannel <- jsonByteString
 		}
 	}
 }
 
-func handleWriteLog()  {
-	if f, err := os.OpenFile(config.AppAccessLogName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
+func handleWriteLog() {
+	logFileName := Utils.CreateDateDir(Config.AppAccessLogName, os.ModePerm)
+	if f, err := os.OpenFile(logFileName+"/"+Config.AccessLogName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
 		log.Println(err)
 	} else {
 		for accessLog := range accessLogChannel {

@@ -1,11 +1,10 @@
-package config
+package Config
 
 const (
 	// 服务类
 
 	// 服务端口
 	SERVER_PORT = ":8888"
-
 
 	// 数据库类
 
@@ -18,10 +17,9 @@ const (
 
 	AppName = "DBManager"
 	// 日志文件
-	AppAccessLogName = "log/" + AppName + "-access.log"
-	AppErrorLogName  = "log/" + AppName + "-error.log"
-	AppGrpcLogName   = "log/" + AppName + "-grpc.log"
+	AppAccessLogName = "log/" + AppName
+	AppErrorLogName  = "log/" + AppName
+	AppGrpcLogName   = "log/" + AppName
 
-
-
+	AccessLogName = "-access.log"
 )
