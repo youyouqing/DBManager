@@ -27,7 +27,7 @@ func baseDb() {
 	fmt.Println("mysql init")
 }
 
-// root:zhicongdai@tcp(www.cthai.cn:3306)/mysql?charset=utf8mb4&parseTime=True&loc=Local
+// root:zhicongdai@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4&parseTime=True&loc=Local
 func ConnectDb(ip string, port string, dbName string, userName string, password string) (db *gorm.DB, dbErr error) {
 	defer dbCon.Close()
 	mysqlDsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",

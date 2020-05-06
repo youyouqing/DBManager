@@ -23,3 +23,11 @@ func RandIntString(num int) string {
 	}
 	return randStr
 }
+
+func StringToint(str string) int  {
+	strInt,err := strconv.Atoi(str)
+	if err != nil{
+		return 0
+	}
+	return strInt
+}

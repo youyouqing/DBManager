@@ -43,20 +43,6 @@ func SetRoute(engine *gin.Engine) {
 				context.Abort()
 				return
 			}
-			//ip := context.DefaultPostForm("ip", "127.0.0.1")
-			//port := context.DefaultPostForm("port", "3306")
-			//dbName := context.DefaultPostForm("dbName", "")
-			//userName := context.DefaultPostForm("userName", "")
-			//password := context.DefaultPostForm("password", "")
-			//if len(userName) <= 0 {
-			//	context.JSON(500, Utils.NewResultError500("账号不能为空"))
-			//	context.Abort()
-			//	return
-			//}
-			//db, err := AppInit.ConnectDb(ip, port, dbName, userName, password)
-			//if err != nil {
-			//	context.JSON(500, Utils.NewResultError500(err.Error()))
-			//}
 
 			if !(Service.ShareUserService().NameExist(loginMod.Name)) {
 				context.JSON(500, Utils.NewResultError500("用户不存在"))
@@ -83,19 +69,40 @@ func SetRoute(engine *gin.Engine) {
 	{
 		// 新增数据库连接信息
 		connectsGroup.POST("add", func(context *gin.Context) {
-			var registerMod Model.RegisterBindModel
-			if err := context.ShouldBind(&registerMod); err != nil {
+			var insertMod Model.InsertConnects
+			if err := context.ShouldBind(&insertMod); err != nil {
 				context.JSON(500, Utils.NewResultError500(err.Error()))
 				context.Abort()
 				return
 			}
-			if Service.ShareUserService().NameExist(registerMod.Name) {
-				context.JSON(500, Utils.NewResultError500("已存在注册用户"))
+			fmt.Print(insertMod)
+			userInfo, _ := Utils.GetAuthUser(context)
+			insertMod.Uid = userInfo.Id
+			insertRes,msg := Service.ShareConnectsService().Add(insertMod)
+			if len(msg) >0 {
+				context.JSON(500, Utils.NewResultError500(msg))
 				context.Abort()
 				return
 			}
-			// &{dzc c4ca4238a0b923820dcc509a6f75849b d4b83f9ab7105c90278cfca938b77a2f 2020-05-05 02:06:27 2020-05-05 02:06:27 362138}
-			context.JSON(200, Utils.NewResultSuccess200(Service.ShareUserService().Regist(registerMod.Name, registerMod.Password)))
+			context.JSON(200, Utils.NewResultSuccess200(insertRes))
+		})
+
+		// 编辑 TODO
+		// 删除 TODO
+
+		// 列表
+		connectsGroup.GET("/", func(context *gin.Context) {
+			userInfo, _ := Utils.GetAuthUser(context)
+			uid := userInfo.Id
+			page := context.DefaultQuery("page","1")
+			pageNum := context.DefaultQuery("pageNum","10")
+		 	var lists []Model.Connects
+			lists = Service.ShareConnectsService().List(uid,Utils.StringToint(page),Utils.StringToint(pageNum))
+			count := Service.ShareConnectsService().Total(uid)
+			context.JSON(200, Utils.NewResultSuccess200(gin.H{
+				"list" : lists,
+				"total" : count,
+			}))
 		})
 	}
 

@@ -8,13 +8,13 @@ type Connects struct {
 }
 
 type InsertConnects struct {
-	Host     string `json:"host"`
-	Port     string `json:"port"`
+	Host     string `json:"host" form:"host" binding:"required"`
+	Port     string `json:"port" form:"port" binding:"required"`
+	Name     string `json:"name" form:"name" binding:"required"`
 	Uid      int    `json:"uid"`
-	Name     string `json:"name"`
-	Dbname   string `json:"dbname"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Dbname   string `json:"dbname" form:"dbname" binding:"required"`
+	Username string `json:"username" form:"username" binding:"required"`
+	Password string `json:"password" form:"password" binding:"required"`
 	CreateAt string `json:"create_at"`
-	UpdateAt string `json:"update_at"`
+	UpdateAt string `json:"Update_at"`
 }
