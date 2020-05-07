@@ -9,7 +9,6 @@ import (
 )
 
 var db *gorm.DB
-var dbCon *gorm.DB
 
 func baseDb() {
 	var err error
@@ -27,23 +26,6 @@ func baseDb() {
 	fmt.Println("mysql init")
 }
 
-// root:zhicongdai@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4&parseTime=True&loc=Local
-func ConnectDb(ip string, port string, dbName string, userName string, password string) (db *gorm.DB, dbErr error) {
-	defer dbCon.Close()
-	mysqlDsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		userName, password, ip, port, dbName)
-	dbCon, dbErr = gorm.Open("mysql",
-		mysqlDsn)
-	if dbErr != nil {
-		log.Fatal(dbErr)
-		return nil, dbErr
-	}
-	dbCon.SingularTable(true)
-	dbCon.DB().SetMaxIdleConns(4)
-	dbCon.DB().SetMaxOpenConns(20)
-	return dbCon, dbErr
-}
-
 func GetDB() *gorm.DB {
 	if db == nil {
 		baseDb()
@@ -51,6 +33,3 @@ func GetDB() *gorm.DB {
 	return db
 }
 
-func GetDBCon() *gorm.DB {
-	return dbCon
-}

@@ -75,7 +75,12 @@ func SetRoute(engine *gin.Engine) {
 				context.Abort()
 				return
 			}
-			fmt.Print(insertMod)
+			_,err := Service.ShareDbsService().SetDb(insertMod)
+			if err!=nil {
+				context.JSON(500, Utils.NewResultError500(err.Error()))
+				context.Abort()
+				return
+			}
 			userInfo, _ := Utils.GetAuthUser(context)
 			insertMod.Uid = userInfo.Id
 			insertRes,msg := Service.ShareConnectsService().Add(insertMod)
@@ -98,10 +103,16 @@ func SetRoute(engine *gin.Engine) {
 			pageNum := context.DefaultQuery("pageNum","10")
 		 	var lists []Model.Connects
 			lists = Service.ShareConnectsService().List(uid,Utils.StringToint(page),Utils.StringToint(pageNum))
+			errDbMsg := make(map[string] string)
+			for _,value := range lists {
+				ster := Service.ShareDbsService().CheckDb(value)
+				fmt.Print(ster)
+			}
 			count := Service.ShareConnectsService().Total(uid)
 			context.JSON(200, Utils.NewResultSuccess200(gin.H{
 				"list" : lists,
 				"total" : count,
+				"errDbMsg" : errDbMsg,
 			}))
 		})
 	}
