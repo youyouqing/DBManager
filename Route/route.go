@@ -104,18 +104,24 @@ func SetRoute(engine *gin.Engine) {
 		 	var lists []Model.Connects
 			lists = Service.ShareConnectsService().List(uid,Utils.StringToint(page),Utils.StringToint(pageNum))
 			errDbMsg := make(map[string] string)
-			for _,value := range lists {
+			var  listsReturn [10]Model.Connects
+			for key,value := range lists {
+				// TODO 未获取到异常
 				ster := Service.ShareDbsService().CheckDb(value)
 				fmt.Print(ster)
+				value.Password = "******"
+				listsReturn[key] = value
 			}
 			count := Service.ShareConnectsService().Total(uid)
 			context.JSON(200, Utils.NewResultSuccess200(gin.H{
-				"list" : lists,
+				"list" : listsReturn,
 				"total" : count,
 				"errDbMsg" : errDbMsg,
 			}))
 		})
 	}
+
+
 
 	// not route response
 	setNoRouteResponse(engine)

@@ -4,7 +4,6 @@ import (
 	"dzc.com/Model"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"log"
 	"sync"
 )
 
@@ -35,7 +34,7 @@ func (this *DbsService)CheckDb(connectMod Model.Connects) (interface{}) {
 		}
 		fmt.Println("e")
 	}()
-	_, _ = connectDb(connectMod.Host, connectMod.Port, connectMod.Dbname, connectMod.Username, connectMod.Password)
+	connectDb(connectMod.Host, connectMod.Port, connectMod.Dbname, connectMod.Username, connectMod.Password)
 	return errDbMsg
 }
 
@@ -68,8 +67,7 @@ func connectDb(host string, port string, dbName string, userName string, passwor
 		mysqlDsn)
 	defer dbCon.Close()
 	if dbErr != nil {
-		log.Fatal(dbErr)
-		return nil, dbErr
+		panic(dbErr)
 	}
 	dbCon.SingularTable(true)
 	dbCon.DB().SetMaxIdleConns(4)
