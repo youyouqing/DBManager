@@ -4,7 +4,6 @@ import (
 	"dzc.com/Model"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"log"
 	"sync"
 )
 
@@ -24,19 +23,8 @@ func ShareDbsService() *DbsService {
 	}
 }
 
-func (this *DbsService)CheckDb(connectMod Model.Connects) (interface{}) {
-	var errDbMsg interface{}
-	defer func() {
-		fmt.Println("d")
-		if err := recover(); err != nil {
-			fmt.Println("a")
-			fmt.Println(err) // 这里的err其实就是panic传入的内容
-			fmt.Println("b")
-		}
-		fmt.Println("e")
-	}()
-	_, _ = connectDb(connectMod.Host, connectMod.Port, connectMod.Dbname, connectMod.Username, connectMod.Password)
-	return errDbMsg
+func (this *DbsService)CheckDb(connectMod Model.Connects) (*gorm.DB, error) {
+	return connectDb(connectMod.Host, connectMod.Port, connectMod.Dbname, connectMod.Username, connectMod.Password)
 }
 
 func (this *DbsService)SetDb(connectMod Model.InsertConnects) (*gorm.DB, error) {
@@ -68,8 +56,7 @@ func connectDb(host string, port string, dbName string, userName string, passwor
 		mysqlDsn)
 	defer dbCon.Close()
 	if dbErr != nil {
-		log.Fatal(dbErr)
-		return nil, dbErr
+		panic(dbErr)
 	}
 	dbCon.SingularTable(true)
 	dbCon.DB().SetMaxIdleConns(4)

@@ -3,6 +3,7 @@ package Route
 import (
 	"dzc.com/Model"
 	"dzc.com/Route/Middleware/Auth"
+	"dzc.com/Route/Middleware/Exception"
 	"dzc.com/Route/Middleware/Logger"
 	"dzc.com/Service"
 	"dzc.com/Utils"
@@ -105,8 +106,7 @@ func SetRoute(engine *gin.Engine) {
 			lists = Service.ShareConnectsService().List(uid,Utils.StringToint(page),Utils.StringToint(pageNum))
 			errDbMsg := make(map[string] string)
 			for _,value := range lists {
-				ster := Service.ShareDbsService().CheckDb(value)
-				fmt.Print(ster)
+				fmt.Println(Service.ShareDbsService().CheckDb(value))
 			}
 			count := Service.ShareConnectsService().Total(uid)
 			context.JSON(200, Utils.NewResultSuccess200(gin.H{
@@ -144,5 +144,5 @@ func setTestRoute(engine *gin.Engine) {
 }
 
 func setMiddleware(engine *gin.Engine) {
-	engine.Use(Logger.SetLogger(), Auth.SetAuth())
+	engine.Use(Logger.SetLogger(),Exception.SetUp(), Auth.SetAuth())
 }
