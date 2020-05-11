@@ -34,7 +34,7 @@ func (this *BodyWriter) WriteString(s string) (int, error) {
 
 var accessLogChannel = make(chan string, 100)
 
-func SetLogger() gin.HandlerFunc {
+func SetUp() gin.HandlerFunc {
 
 	go handleWriteLog() // 异步写日志
 

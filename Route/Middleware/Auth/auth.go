@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func SetAuth() gin.HandlerFunc {
+func SetUp() gin.HandlerFunc {
 
 	return func(context *gin.Context) {
 		var token string

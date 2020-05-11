@@ -3,6 +3,7 @@ package Utils
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/satori/go.uuid"
 	"math/rand"
 	"strconv"
 	"time"
@@ -24,10 +25,14 @@ func RandIntString(num int) string {
 	return randStr
 }
 
-func StringToint(str string) int  {
-	strInt,err := strconv.Atoi(str)
-	if err != nil{
+func StringToint(str string) int {
+	strInt, err := strconv.Atoi(str)
+	if err != nil {
 		return 0
 	}
 	return strInt
+}
+
+func UUid() string {
+	return uuid.NewV4().String()
 }

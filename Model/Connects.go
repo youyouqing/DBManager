@@ -8,6 +8,7 @@ type Connects struct {
 }
 
 type InsertConnects struct {
+	Uuid     string `json:"uuid"`
 	Host     string `json:"host" form:"host" binding:"required"`
 	Port     string `json:"port" form:"port" binding:"required"`
 	Name     string `json:"name" form:"name" binding:"required"`

@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	gee := AppInit.GetGin(false)
+	gee := AppInit.GetGin()
 
 	// 设置路由 和中间件
 	Route.SetRoute(gee.Engine)

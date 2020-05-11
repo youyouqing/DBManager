@@ -13,3 +13,12 @@ func GetAuthUser(ctx *gin.Context) (Model.Users, bool) {
 	}
 	return userModel, false
 }
+
+func GetConnInfo(ctx *gin.Context) (Model.Connects, bool) {
+	var conModel Model.Connects
+	conMod, _ := ctx.Get("connInfo")
+	if conMod, ok := conMod.(Model.Connects); ok {
+		return conMod, true
+	}
+	return conModel, false
+}

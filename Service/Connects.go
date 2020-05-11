@@ -26,19 +26,24 @@ func (this *ConnectsService) Add(insertMod Model.InsertConnects) (bool, string) 
 	insertMod.CreateAt = Utils.NowTimeString()
 	insertMod.UpdateAt = insertMod.CreateAt
 	this.dblink.Create(insertMod)
-	return true,""
+	return true, ""
+}
+
+func (this *ConnectsService) Detial(uuid string) Model.Connects {
+	var mod Model.Connects
+	this.dblink.Where("uuid = ?", uuid).First(&mod)
+	return mod
 }
 
 func (this *ConnectsService) List(uid int, page int, pageNum int) []Model.Connects {
 	var connectMod []Model.Connects
-	this.dblink.Where("uid = ?",uid).Offset((page - 1) *pageNum).Limit(pageNum).Find(&connectMod)
+	this.dblink.Where("uid = ?", uid).Offset((page - 1) * pageNum).Limit(pageNum).Find(&connectMod)
 	return connectMod
 }
 
-
 func (this *ConnectsService) Total(uid int) int {
 	var count int
-	this.dblink.Where("uid = ?",uid).Count(&count)
+	this.dblink.Where("uid = ?", uid).Count(&count)
 	return count
 }
 

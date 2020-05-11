@@ -1,7 +1,7 @@
 package AppInit
 
 import (
-	"dzc.com/Utils"
+	"dzc.com/Config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,8 +10,8 @@ type ginEngine struct {
 	ServerPort string
 }
 
-func GetGin(isProduct bool) *ginEngine {
-	return &ginEngine{engine, Utils.ShareConfigInstance(isProduct).GetConfigFromKey("server_port")}
+func GetGin() *ginEngine {
+	return &ginEngine{engine, Config.SERVER_PORT}
 }
 
 func (this *ginEngine) Start() {

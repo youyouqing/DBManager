@@ -1,8 +1,7 @@
 package AppInit
 
 import (
-	"dzc.com/Utils"
-	"fmt"
+	"dzc.com/Config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
@@ -12,18 +11,14 @@ var db *gorm.DB
 
 func baseDb() {
 	var err error
-	config := Utils.ShareConfigInstance(false)
-	mysqlDsn := config.GetConfigFromKey("mysql_dsn")
 	db, err = gorm.Open("mysql",
-		mysqlDsn)
+		Config.MYSQL_DSN)
 	if err != nil {
 		log.Fatal(err)
 	}
 	db.SingularTable(true)
-	db.DB().SetMaxIdleConns(2)
-	db.DB().SetMaxOpenConns(10)
-
-	fmt.Println("mysql init")
+	db.DB().SetMaxIdleConns(Config.MYSQL_MaxIdleConns)
+	db.DB().SetMaxOpenConns(Config.MYSQL_MaxOpenConns)
 }
 
 func GetDB() *gorm.DB {
@@ -32,4 +27,3 @@ func GetDB() *gorm.DB {
 	}
 	return db
 }
-

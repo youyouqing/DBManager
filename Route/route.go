@@ -3,8 +3,12 @@ package Route
 import (
 	"dzc.com/Model"
 	"dzc.com/Route/Middleware/Auth"
+	"dzc.com/Route/Middleware/Exception"
+	"dzc.com/Route/Middleware/Forbid"
 	"dzc.com/Route/Middleware/Logger"
+	"dzc.com/Route/Middleware/Operation"
 	"dzc.com/Service"
+	"dzc.com/Service/Mysql"
 	"dzc.com/Utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -75,16 +79,21 @@ func SetRoute(engine *gin.Engine) {
 				context.Abort()
 				return
 			}
-			_,err := Service.ShareDbsService().SetDb(insertMod)
-			if err!=nil {
+			uuid := Utils.UUid()
+			insertMod.Uuid = uuid
+			//fmt.Print(insertMod)
+			//context.Abort()
+			//return
+			_, err := Service.ShareDbsService().SetDb(uuid, insertMod)
+			if err != nil {
 				context.JSON(500, Utils.NewResultError500(err.Error()))
 				context.Abort()
 				return
 			}
 			userInfo, _ := Utils.GetAuthUser(context)
 			insertMod.Uid = userInfo.Id
-			insertRes,msg := Service.ShareConnectsService().Add(insertMod)
-			if len(msg) >0 {
+			insertRes, msg := Service.ShareConnectsService().Add(insertMod)
+			if len(msg) > 0 {
 				context.JSON(500, Utils.NewResultError500(msg))
 				context.Abort()
 				return
@@ -99,29 +108,74 @@ func SetRoute(engine *gin.Engine) {
 		connectsGroup.GET("/", func(context *gin.Context) {
 			userInfo, _ := Utils.GetAuthUser(context)
 			uid := userInfo.Id
-			page := context.DefaultQuery("page","1")
-			pageNum := context.DefaultQuery("pageNum","10")
-		 	var lists []Model.Connects
-			lists = Service.ShareConnectsService().List(uid,Utils.StringToint(page),Utils.StringToint(pageNum))
-			errDbMsg := make(map[string] string)
-			var  listsReturn [10]Model.Connects
-			for key,value := range lists {
-				// TODO 未获取到异常
-				ster := Service.ShareDbsService().CheckDb(value)
-				fmt.Print(ster)
-				value.Password = "******"
-				listsReturn[key] = value
-			}
+			page := context.DefaultQuery("page", "1")
+			pageNum := context.DefaultQuery("pageNum", "10")
+			var lists []Model.Connects
+			lists = Service.ShareConnectsService().List(uid, Utils.StringToint(page), Utils.StringToint(pageNum))
 			count := Service.ShareConnectsService().Total(uid)
 			context.JSON(200, Utils.NewResultSuccess200(gin.H{
-				"list" : listsReturn,
-				"total" : count,
-				"errDbMsg" : errDbMsg,
+				"list":  lists,
+				"total": count,
 			}))
 		})
 	}
 
+	// 数据库连接操作类
+	operationsGroup := engine.Group("/operation").Use(Operation.SetUp())
+	{
+		operationsGroup.GET("databases", func(context *gin.Context) {
+			var selctMod Model.SelectDbs
+			if err := context.ShouldBind(&selctMod); err != nil {
+				context.JSON(500, Utils.NewResultError500(err.Error()))
+				context.Abort()
+				return
+			}
+			res, err := Mysql.ShareSelectService(context).ShowDatabases(selctMod)
+			if err != nil {
+				context.JSON(500, Utils.NewResultError500(err.Error()))
+				context.Abort()
+				return
+			}
+			context.JSON(200, Utils.NewResultSuccess200(res))
+		})
 
+		operationsGroup.GET("tablesInfo", func(context *gin.Context) {
+
+			dbName, exist := context.GetQuery("db_name")
+			if !exist {
+				context.JSON(500, Utils.NewResultError500("数据库名称未指定"))
+				context.Abort()
+				return
+			}
+
+			res, err := Mysql.ShareSelectService(context).ShowTables(dbName)
+			if err != nil {
+				context.JSON(500, Utils.NewResultError500(err.Error()))
+				context.Abort()
+				return
+			}
+			context.JSON(200, Utils.NewResultSuccess200(res))
+		})
+
+		operationsGroup.GET("tableInfo", func(context *gin.Context) {
+
+			var selectTableInfo Model.SelectTableInfo
+			err := context.ShouldBindQuery(&selectTableInfo)
+			if err != nil {
+				context.JSON(500, Utils.NewResultError500(err.Error()))
+				context.Abort()
+				return
+			}
+
+			res, err := Mysql.ShareSelectService(context).ShowTableInfo(selectTableInfo.DbName, selectTableInfo.TableName)
+			if err != nil {
+				context.JSON(500, Utils.NewResultError500(err.Error()))
+				context.Abort()
+				return
+			}
+			context.JSON(200, Utils.NewResultSuccess200(res))
+		})
+	}
 
 	// not route response
 	setNoRouteResponse(engine)
@@ -150,5 +204,6 @@ func setTestRoute(engine *gin.Engine) {
 }
 
 func setMiddleware(engine *gin.Engine) {
-	engine.Use(Logger.SetLogger(), Auth.SetAuth())
+	engine.Use(Logger.SetUp(), Forbid.SetUp(), Auth.SetUp(), Exception.SetUp())
+	//engine.Use(Logger.SetUp(),Exception.SetUp())
 }
